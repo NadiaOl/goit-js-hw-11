@@ -1,0 +1,44 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    display: flex;
+    max-width: 100%;
+    height: auto;
+}
+
+button {
+    cursor: pointer;
+    transition-property: background-color, color, box-shadow, transform;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.icon-search {
+    fill: #333BA6;
+}
+.container {
+    margin: auto;
+    padding: 5px;
+}
+.header {
+    display: flex;
+    background-color: #333BA6;}
