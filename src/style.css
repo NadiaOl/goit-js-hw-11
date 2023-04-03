@@ -1,17 +1,14 @@
-*,
-*::before,
-*::after {
+*  {
     box-sizing: border-box;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
 p {
+    font-size: 10px;
     margin: 0;
+}
+
+b {
+    font-size: 8px;
 }
 
 ul {
@@ -23,7 +20,8 @@ ul {
 img {
     display: flex;
     max-width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
 }
 
 button {
@@ -41,4 +39,71 @@ button {
 }
 .header {
     display: flex;
-    background-color: #333BA6;}
+    background-color: #333BA6;
+}
+.gallery-button {
+    display: flex;
+    justify-content: center
+}
+
+.is-hidden {
+    display: none;
+}
+
+.load-more {
+    background-color: #333BA6;
+    border-radius: 5px;
+    height: 30px;
+    width: 120px;
+    color: hsl(40, 43%, 99%);
+    
+}
+
+.main {
+    padding: 10px;
+}
+
+.gallery {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
+.photo-card {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 5px;
+    width: calc((100% - 30px)/4);
+    height: 180px;
+
+    border-radius: 5px;
+    box-shadow: 0px 3px 1px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.08), 0px 2px 2px rgba(0, 0, 0, 0.12);
+}
+
+.info {
+display: flex;
+flex-direction: row;
+gap: 10px;
+width: 100%;
+padding: 5px;
+
+}
+.info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    flex-grow: 1;
+
+}
+
+.photo-item {
+    height: 80%;
+    display: flex;
+    justify-content: center;
+}
+/*              red poodle              */
