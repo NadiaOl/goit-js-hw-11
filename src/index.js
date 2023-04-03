@@ -26,14 +26,15 @@ refs.buttonShowMore.addEventListener('click', hendlerShowMore);
 
 // получаем ответ от бекэнда
 function fetchPhoto() {
-    return fetch(`${BASE_URL}/?key=${KEY}&q=${seekedPhoto}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(response.status);
-            }
-            return response.json()
-        }).catch(err => console.log(err));
+    return axios.get(`${BASE_URL}/?key=${KEY}&q=${seekedPhoto}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`)
 }
+
+// при нажатии на кнопку поиска
+// -отменяем перезагрузку
+// -выводим сообщение сколько нашли картинок
+// -прячем кнопку Load more
+// -рендерим разметку
+// -отчищаем инпут
 
 function hendlerSearch(event) {
     refs.photoContainer.innerHTML = "";
@@ -42,10 +43,9 @@ function hendlerSearch(event) {
     event.preventDefault();
     seekedPhoto = event.target.elements.searchQuery.value;
     fetchPhoto(seekedPhoto)
-        .then(resp => {
-            if (resp.totalHits !== 0) {
-                Notify.success(`Hooray! We found ${resp.totalHits} images`)
-                console.log(resp.totalHits);
+        .then( resp => {
+            if (resp.data.totalHits !== 0) {
+                Notify.success(`Hooray! We found ${resp.data.totalHits} images`)
                 refs.buttonShowMore.classList.remove('is-hidden');
                 return resp
             }
@@ -55,21 +55,25 @@ function hendlerSearch(event) {
         })
         .then(renderPhotoCard)
         .catch((err) => {
-        console.log(err)
-        })
+            Notify.failure('Something went wrong :( Please, try again later');
+            console.log(err)
+        }
+        )
     event.currentTarget.reset();
-
 }
 
-
+// при нажати на кнопку Load more
+// -увеличиваем страницу
+// -получаем след.страницу от бек-енда
+// -если больше картинок нет либо их изначально меньше 40 выдодим сообщение и прячем кнопку
+// -рендерим разметку
 
 function hendlerShowMore(event) {
     page += 1;
     
     fetchPhoto(seekedPhoto)
         .then(resp => {
-            console.log(`Page: ${page}, TotalHits: ${resp.totalHits / 40}`)
-            if (Math.ceil(resp.totalHits / 40) === page || resp.totalHits < 40) {
+            if (Math.ceil(resp.data.totalHits / 40) === page || resp.data.totalHits < 40) {
                 Notify.failure("We're sorry, but you've reached the end of search results.");
                 refs.buttonShowMore.classList.add('is-hidden');
                 return resp
@@ -78,14 +82,18 @@ function hendlerShowMore(event) {
         })
         .then(renderPhotoCard)
         .catch((err) => {
+            Notify.failure('Something went wrong :( Please, try again later');
             console.log(err)
         })
 
 }
-    
+
+// библиотека для больших картинок
 var lightbox = new SimpleLightbox('.gallery a', {
     captionDelay: "250"
 });
+
+// функция для разметки 
 function photoCard({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) {
     return `
     <div class="photo-card">
@@ -111,15 +119,16 @@ function photoCard({ webformatURL, largeImageURL, tags, likes, views, comments, 
     </div>
         `
 }
-
+// функция для рендера
+// дополнительно вызываем функцию для библиотеки SimpleLightbox и плавного скрола
 function renderPhotoCard(photo) {
-    const photoArray = photo.hits.map(photoCard).join("");
-    console.log(photo.hits);
+    const photoArray = photo.data.hits.map(photoCard).join("");
     refs.photoContainer.insertAdjacentHTML("beforeend", photoArray)
     lightbox.refresh();
     smoothScroll();
 }
 
+// функция для плавного скрола
 function smoothScroll() {
     const { height: cardHeight } = document.querySelector(".gallery").firstElementChild.getBoundingClientRect();
 
