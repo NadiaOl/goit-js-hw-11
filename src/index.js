@@ -26,7 +26,7 @@ refs.buttonShowMore.addEventListener('click', hendlerShowMore);
 
 // получаем ответ от бекэнда
 function fetchPhoto() {
-    return fectch(`${BASE_URL}/?key=${KEY}&q=${seekedPhoto}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`)
+    return fetch(`${BASE_URL}/?key=${KEY}&q=${seekedPhoto}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(response.status);
