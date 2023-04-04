@@ -1,7 +1,6 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
-
 import axios from 'axios';
 
 
@@ -11,7 +10,6 @@ const KEY = '34756592-add6791e980caa28afb1f7410';
 
 let seekedPhoto = "";
 let page = 1;
-let photo = [];
 
 const refs = {
     inputEl: document.querySelector('input'),
@@ -25,8 +23,9 @@ refs.buttonSubmitEl.addEventListener('submit', hendlerSearch);
 refs.buttonShowMore.addEventListener('click', hendlerShowMore);
 
 // получаем ответ от бекэнда
-function fetchPhoto() {
-    return axios.get(`${BASE_URL}/?key=${KEY}&q=${seekedPhoto}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`)
+async function fetchPhoto() {
+    const  arraySearchPhoto = await axios.get(`${BASE_URL}/?key=${KEY}&q=${seekedPhoto}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`)
+    return arraySearchPhoto
 }
 
 // при нажатии на кнопку поиска
@@ -36,30 +35,27 @@ function fetchPhoto() {
 // -рендерим разметку
 // -отчищаем инпут
 
-function hendlerSearch(event) {
+async function hendlerSearch(event) {
     refs.photoContainer.innerHTML = "";
     page = 1;
     refs.buttonShowMore.classList.add('is-hidden');
     event.preventDefault();
     seekedPhoto = event.target.elements.searchQuery.value;
-    fetchPhoto(seekedPhoto)
-        .then( resp => {
-            if (resp.data.totalHits !== 0) {
-                Notify.success(`Hooray! We found ${resp.data.totalHits} images`)
-                refs.buttonShowMore.classList.remove('is-hidden');
-                return resp
+    try {
+        const arrayFetchPhoto = await fetchPhoto(seekedPhoto);
+            if (arrayFetchPhoto.data.totalHits !== 0) {
+            Notify.success(`Hooray! We found ${arrayFetchPhoto.data.totalHits} images`)
+            refs.buttonShowMore.classList.remove('is-hidden');
             }
             else {
                 Notify.failure('Sorry, there are no images matching your search query. Please try again.');
             }
-        })
-        .then(renderPhotoCard)
-        .catch((err) => {
+        renderPhotoCard()
+    } catch (err)  {
             Notify.failure('Something went wrong :( Please, try again later');
             console.log(err)
         }
-        )
-    event.currentTarget.reset();
+    event.target.reset();
 }
 
 // при нажати на кнопку Load more
@@ -68,24 +64,19 @@ function hendlerSearch(event) {
 // -если больше картинок нет либо их изначально меньше 40 выдодим сообщение и прячем кнопку
 // -рендерим разметку
 
-function hendlerShowMore(event) {
+async function hendlerShowMore(event) {
     page += 1;
-    
-    fetchPhoto(seekedPhoto)
-        .then(resp => {
-            if (Math.ceil(resp.data.totalHits / 40) === page || resp.data.totalHits < 40) {
+    try {
+        const arrayAdditionalPhoto = await fetchPhoto(seekedPhoto);
+        if (Math.ceil(arrayAdditionalPhoto.data.totalHits / 40) === page || arrayAdditionalPhoto.data.totalHits < 40) {
                 Notify.failure("We're sorry, but you've reached the end of search results.");
                 refs.buttonShowMore.classList.add('is-hidden');
-                return resp
             }
-            return resp
-        })
-        .then(renderPhotoCard)
-        .catch((err) => {
+        renderPhotoCard()
+    } catch (err)  {
             Notify.failure('Something went wrong :( Please, try again later');
             console.log(err)
-        })
-
+        }
 }
 
 // библиотека для больших картинок
@@ -121,9 +112,10 @@ function photoCard({ webformatURL, largeImageURL, tags, likes, views, comments, 
 }
 // функция для рендера
 // дополнительно вызываем функцию для библиотеки SimpleLightbox и плавного скрола
-function renderPhotoCard(photo) {
-    const photoArray = photo.data.hits.map(photoCard).join("");
-    refs.photoContainer.insertAdjacentHTML("beforeend", photoArray)
+async function renderPhotoCard() {
+    const arrayForRender = await fetchPhoto(seekedPhoto);
+    const photoArray = await arrayForRender.data.hits.map(photoCard).join("");
+    refs.photoContainer.insertAdjacentHTML("beforeend", await photoArray)
     lightbox.refresh();
     smoothScroll();
 }
@@ -131,7 +123,6 @@ function renderPhotoCard(photo) {
 // функция для плавного скрола
 function smoothScroll() {
     const { height: cardHeight } = document.querySelector(".gallery").firstElementChild.getBoundingClientRect();
-
     window.scrollBy({
         top: cardHeight * 0.2,
         behavior: "smooth",
