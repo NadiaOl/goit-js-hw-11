@@ -22,7 +22,8 @@ async function hendlerSearch(event) {
     refs.buttonShowMore.classList.add('is-hidden');
     event.preventDefault();
     seekedPhoto = event.target.elements.searchQuery.value.trim();
-        if (seekedPhoto === "" || seekedPhoto === " ") {
+    if (seekedPhoto === "" || seekedPhoto === " ") {
+            event.target.reset();
             return
     };
     infoAndRenderOnSeach()
