@@ -67,8 +67,6 @@ async function hendlerShowMore(event) {
     page = page + 1;
     try {
         const arrayAdditionalPhoto = await fetchPhoto(seekedPhoto, page);
-        console.log(arrayAdditionalPhoto.data.totalHits);
-        console.log(page);
         if (Math.ceil(arrayAdditionalPhoto.data.totalHits / 40) === page || arrayAdditionalPhoto.data.totalHits < 40) {
                 Notify.failure("We're sorry, but you've reached the end of search results.");
                 refs.buttonShowMore.classList.add('is-hidden');
