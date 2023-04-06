@@ -23,11 +23,13 @@ async function hendlerSearch(event) {
     event.preventDefault();
     seekedPhoto = event.target.elements.searchQuery.value.trim();
     if (seekedPhoto === "" || seekedPhoto === " ") {
+            Notify.info('Enter a search value, please');
             event.target.reset();
             return
     };
     infoAndRenderOnSeach()
     event.target.reset();
+    
 }
 
 // функция инфо-сообщения и рендер при поиске:
@@ -35,14 +37,19 @@ async function hendlerSearch(event) {
 // рендерим разметку, библиотека SimpleLightbox с методом refresh, ловим ошибку 
 async function infoAndRenderOnSeach() {
     try {
+        page = 1;
         const arrayFetchPhoto = await fetchPhoto(seekedPhoto, page);
-            if (arrayFetchPhoto.data.totalHits !== 0) {
-                Notify.success(`Hooray! We found ${arrayFetchPhoto.data.totalHits} images`)
-                refs.buttonShowMore.classList.remove('is-hidden');
-            }
-            else {
-                Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-            }
+        if (arrayFetchPhoto.data.totalHits !== 0) {
+            Notify.success(`Hooray! We found ${arrayFetchPhoto.data.totalHits} images`)
+            refs.buttonShowMore.classList.remove('is-hidden');
+        };
+
+        if (arrayFetchPhoto.data.totalHits < 40) {
+            refs.buttonShowMore.classList.add('is-hidden');
+        };
+        if (arrayFetchPhoto.data.totalHits === 0) {
+            Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+        };
         const photoArray = await arrayFetchPhoto.data.hits.map(photoCard).join("");
         refs.photoContainer.insertAdjacentHTML("beforeend", await photoArray)
         lightbox.refresh();
@@ -60,6 +67,8 @@ async function hendlerShowMore(event) {
     page = page + 1;
     try {
         const arrayAdditionalPhoto = await fetchPhoto(seekedPhoto, page);
+        console.log(arrayAdditionalPhoto.data.totalHits);
+        console.log(page);
         if (Math.ceil(arrayAdditionalPhoto.data.totalHits / 40) === page || arrayAdditionalPhoto.data.totalHits < 40) {
                 Notify.failure("We're sorry, but you've reached the end of search results.");
                 refs.buttonShowMore.classList.add('is-hidden');
